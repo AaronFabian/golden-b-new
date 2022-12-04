@@ -17,8 +17,9 @@ class Admin
   private $subsdistrict;
   private $urban;
   private $images;
+  private $admin_token;
+  private $admin_connnection_id;
 
-  private $admin_list;
   private $company_project;
 
   public function getNik()
@@ -151,19 +152,25 @@ class Admin
     $this->urban = $urban;
   }
 
-  // public function getAdminList()
-  // {
-  //   if(!isset($this->admin_list)){
-  //     $this->admin_list = new AdminList();
-  //   }
+  public function getAdminToken()
+  {
+    return $this->admin_token;
+  }
 
-  //   return $this->admin_list;
-  // }
+  public function setAdminToken($adminToken)
+  {
+    $this->admin_token = $adminToken;
+  }
 
-  // public function setAdminList($adminList)
-  // {
-  //   $this->admin_list = $adminList;
-  // }
+  public function getAdminConnectionId()
+  {
+    return $this->admin_connnection_id;
+  }
+
+  public function setAdminConnectionId($adminConnnectionId)
+  {
+    $this->admin_connnection_id = $adminConnnectionId;
+  }
 
   public function getCompanyProject()
   {

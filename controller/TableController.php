@@ -88,4 +88,10 @@ class TableController
 
       include_once "./view/admin-detail-view.php";
    }
+
+   public function chat()
+   {
+
+      include_once "./view/chat-view.php";
+   }
 }

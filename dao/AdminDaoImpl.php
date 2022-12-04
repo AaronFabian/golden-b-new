@@ -32,6 +32,20 @@ class AdminDaoImpl
     return $stmt->fetchObject('admin');
   }
 
+  public function fetchLiveContact($nik)
+  {
+    $link = PDOUtil::createConnection();
+
+    $query = "SELECT name FROM admin WHERE nik= ?";
+    $stmt = $link->prepare($query);
+    $stmt->bindParam(1, $nik);
+    $stmt->setFetchMode(PDO::FETCH_OBJ);
+    $stmt->execute();
+
+    $link = null;
+    return $stmt->fetchObject('Admin');
+  }
+
   public function fetchToVerifyUser($username, $nik)
   {
     $link = PDOUtil::createConnection();
@@ -135,6 +149,29 @@ class AdminDaoImpl
     if ($stmt->execute()) {
       $link->commit();
       $result = 1;
+    } else {
+      $link->rollBack();
+    }
+
+    return $result;
+  }
+
+  public function updateAdminConnection(Admin $admin)
+  {
+    $result = 0;
+    $link = PDOUtil::createConnection();
+    $query = "UPDATE new_golden_db.admin SET admin_token = ?, admin_connection_id = ?, status = ? WHERE username = ?";
+
+    $stmt = $link->prepare($query);
+    $stmt->bindValue(1, $admin->getAdminToken());
+    $stmt->bindValue(2, $admin->getAdminConnectionId());
+    $stmt->bindValue(3, $admin->getStatus());
+    $stmt->bindValue(4, $admin->getUsername());
+
+    $link->beginTransaction();
+    if ($stmt->execute()) {
+      $link->commit();
+      $result = 0;
     } else {
       $link->rollBack();
     }

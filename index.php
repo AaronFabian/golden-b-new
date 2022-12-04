@@ -16,11 +16,13 @@ include_once "./dao/CompanyProjectDaoImpl.php";
 include_once "./dao/CompanyNewsDaoImpl.php";
 include_once "./dao/ClientDaoImpl.php";
 include_once "./dao/FavoriteDaoImpl.php";
+include_once "./dao/ChatRoomDaoImpl.php";
 include_once "./models/Admin.php";
 include_once "./models/CompanyProject.php";
 include_once "./models/CompanyNews.php";
 include_once "./models/Client.php";
 include_once "./models/Favorite.php";
+include_once "./models/ChatRoom.php";
 
 
 $menu = filter_input(INPUT_GET, 'menu');
@@ -76,6 +78,10 @@ if (!$menu)
          case 'profile':
             $profileController = new ProfileController();
             $profileController->index();
+            break;
+         case 'chat':
+            $tableController = new TableController();
+            $tableController->chat();
             break;
          case 'tables':
             $tableController = new TableController();

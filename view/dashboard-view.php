@@ -46,11 +46,11 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link " href="../pages/sign-in.html">
+          <a class="nav-link " href="?menu=chat">
             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
               <i class="ni ni-single-copy-04 text-warning text-sm opacity-10"></i>
             </div>
-            <span class="nav-link-text ms-1">Sign In</span>
+            <span class="nav-link-text ms-1">Chat</span>
           </a>
         </li>
         <li class="nav-item">
@@ -254,7 +254,7 @@
                   <div class="numbers">
                     <?php
                     $totalAdmin = 0;
-                    foreach($companyProjectArr as $cpr){
+                    foreach ($companyProjectArr as $cpr) {
                       $totalAdmin += $cpr->getTotalAdmin();
                     }
                     ?>
@@ -263,8 +263,8 @@
                       <?= $totalAdmin ?>
                     </h5>
                     <p class="mb-0">
-                      <span class="text-danger text-sm font-weight-bolder">-2%</span>
-                      since last quarter
+                      <span class="text-danger text-sm font-weight-bolder online-admin">-</span>
+                      current online admin
                     </p>
                   </div>
                 </div>
@@ -377,38 +377,40 @@
             <div class="table-responsive container-company-project">
               <table class="table align-items-center ">
                 <tbody class="container-project">
-                  <?php foreach($companyProjectArr as $cp): ?>
-                  <tr>
-                    <td class="w-30">
-                      <div class="d-flex px-2 py-1 align-items-center">
-                        <div>
-                          <img src="./src/img/icons/flags/US.png" alt="Country flag">
+                  <?php foreach ($companyProjectArr as $cp) : ?>
+                    <tr>
+                      <td class="w-30">
+                        <div class="d-flex px-2 py-1 align-items-center">
+                          <div>
+                            <img src="./src/img/icons/flags/US.png" alt="Country flag">
+                          </div>
+                          <div class="ms-4">
+                            <p class="text-xs font-weight-bold mb-0">Judul Projek:</p>
+                            <a href="#" class="<?= $cp->getProjectTitle() ?>" id="btn-project" data-bs-toggle="modal" data-bs-target="#company">
+                              <h6 class="text-sm mb-0" data-title="<?= $cp->getProjectTitle() ?>"><?= $cp->getProjectTitle(); ?></h6>
+                            </a>
+                          </div>
                         </div>
-                        <div class="ms-4">
-                          <p class="text-xs font-weight-bold mb-0">Judul Projek:</p>
-                          <a href="#" class="<?= $cp->getProjectTitle() ?>" id="btn-project" data-bs-toggle="modal" data-bs-target="#company"><h6 class="text-sm mb-0" data-title="<?= $cp->getProjectTitle() ?>"><?= $cp->getProjectTitle(); ?></h6></a>
+                      </td>
+                      <td>
+                        <div class="text-center">
+                          <p class="text-xs font-weight-bold mb-0">Start:</p>
+                          <h6 class="text-sm mb-0"><?= $cp->getStartProject(); ?></h6>
                         </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="text-center">
-                        <p class="text-xs font-weight-bold mb-0">Start:</p>
-                        <h6 class="text-sm mb-0"><?= $cp->getStartProject(); ?></h6>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="text-center">
-                        <p class="text-xs font-weight-bold mb-0">Alamat:</p>
-                        <h6 class="text-sm mb-0"><?= $cp->getProjectArea(); ?></h6>
-                      </div>
-                    </td>
-                    <td class="align-middle text-sm">
-                      <div class="col text-center">
-                        <p class="text-xs font-weight-bold mb-0">Lokasi Projek:</p>
-                        <h6 class="text-sm mb-0"><?= $cp->getProjectAddress(); ?></h6>
-                      </div>
-                    </td>
-                  </tr>
+                      </td>
+                      <td>
+                        <div class="text-center">
+                          <p class="text-xs font-weight-bold mb-0">Alamat:</p>
+                          <h6 class="text-sm mb-0"><?= $cp->getProjectArea(); ?></h6>
+                        </div>
+                      </td>
+                      <td class="align-middle text-sm">
+                        <div class="col text-center">
+                          <p class="text-xs font-weight-bold mb-0">Lokasi Projek:</p>
+                          <h6 class="text-sm mb-0"><?= $cp->getProjectAddress(); ?></h6>
+                        </div>
+                      </td>
+                    </tr>
                   <?php endforeach; ?>
                 </tbody>
               </table>
@@ -422,21 +424,21 @@
             </div>
             <div class="card-body p-3">
               <ul class="list-group">
-                <?php foreach($companyProjectArr as $cpr): ?>
-                <li class="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
-                  <div class="d-flex align-items-center">
-                    <div class="icon icon-shape icon-sm me-3 bg-gradient-dark shadow text-center">
-                      <i class="ni ni-mobile-button text-white opacity-10"></i>
+                <?php foreach ($companyProjectArr as $cpr) : ?>
+                  <li class="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
+                    <div class="d-flex align-items-center">
+                      <div class="icon icon-shape icon-sm me-3 bg-gradient-dark shadow text-center">
+                        <i class="ni ni-mobile-button text-white opacity-10"></i>
+                      </div>
+                      <div class="d-flex flex-column">
+                        <h6 class="mb-1 text-dark text-sm"><?= $cpr->getProjectTitle() ?></h6>
+                        <span class="text-xs">Total Admin : <span class="font-weight-bold"><?= $cpr->getTotalAdmin(); ?></span></span>
+                      </div>
                     </div>
-                    <div class="d-flex flex-column">
-                      <h6 class="mb-1 text-dark text-sm"><?= $cpr->getProjectTitle() ?></h6>
-                      <span class="text-xs">Total Admin : <span class="font-weight-bold"><?= $cpr->getTotalAdmin(); ?></span></span>
+                    <div class="d-flex">
+                      <button class="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"><i class="ni ni-bold-right" aria-hidden="true"></i></button>
                     </div>
-                  </div>
-                  <div class="d-flex">
-                    <button class="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"><i class="ni ni-bold-right" aria-hidden="true"></i></button>
-                  </div>
-                </li>
+                  </li>
                 <?php endforeach; ?>
                 <!-- <li class="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
                   <div class="d-flex align-items-center">
@@ -601,30 +603,30 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-        <div class="row">
-          <div class="col">
-            <label for="modal-tanggal" class="form-label">Tanggal</label>
-            <input type="text" name="form-tanggal" class="form-control" id="modal-tanggal" readonly>
-          </div>
-          <div class="col">
-            <label for="modal-lokasi" class="form-label">Lokasi Project</label>
-            <input type="text" name="form-lokasi" class="form-control" id="modal-lokasi" readonly>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label for="modal-alamat" class="form-label">Alamat</label>
-            <input type="text" name="modal-alamat" class="form-control" id="modal-alamat" readonly>
-          </div>
-        </div>
-        <div class="row mt-4">
-          <div class="col">
-          <div class="form-floating">
-              <textarea class="form-control form-bio" id="modal-catatan" style="height: 100px" name="form-bio"></textarea>
-              <label for="modal-catatan">Catatan</label>
+          <div class="row">
+            <div class="col">
+              <label for="modal-tanggal" class="form-label">Tanggal</label>
+              <input type="text" name="form-tanggal" class="form-control" id="modal-tanggal" readonly>
+            </div>
+            <div class="col">
+              <label for="modal-lokasi" class="form-label">Lokasi Project</label>
+              <input type="text" name="form-lokasi" class="form-control" id="modal-lokasi" readonly>
             </div>
           </div>
-        </div>
+          <div class="row">
+            <div class="col">
+              <label for="modal-alamat" class="form-label">Alamat</label>
+              <input type="text" name="modal-alamat" class="form-control" id="modal-alamat" readonly>
+            </div>
+          </div>
+          <div class="row mt-4">
+            <div class="col">
+              <div class="form-floating">
+                <textarea class="form-control form-bio" id="modal-catatan" style="height: 100px" name="form-bio"></textarea>
+                <label for="modal-catatan">Catatan</label>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -735,44 +737,9 @@
   <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="./src/js/argon-dashboard.min.js?v=2.0.4"></script>
   <script>
-    // $(document).ready(function(){
-    //   const btnProject = document.querySelector('.container-project');
-    //   btnProject.addEventListener('click', (e) => {
-    //     const btnProject = e.target.closest('#btn-project');
-    //     e.preventDefault();
-    //     if(!btnProject) return;
-        
-    //     const projectTitle = btnProject.classList.value;
-    //     $.ajax({
-    //       type: "POST",
-    //       url: "index.php",
-    //       data: `ajax=${projectTitle}`,
-    //       cache: false,
-    //       success: function(response){
-    //         console.log(response);
-
-            <?php if(!isset($_SESSION["ajax"])): ?>
-
-    //         <?php else: ?>
-    //           console.log(<?= $_SESSION["ajax"]; ?>);
-            // <?php endif; ?>
-    //       }
-    //   });
-    //   })
-    // });
-
-    // const request = fetch('index.php?data=pizza')
-    //                 .then(responsive => responsive)
-    //                 .then(data => console.log(data));
-
-    // const btnProject = document.querySelector('.btn-project');
-    // btnProject.addEventListener('click', (ev) => {
-      
-    // });
     const containerCompanyProject = document.querySelector('.container-company-project');
-    
-
-    class CompanyProject{
+    const onlineAdmin = document.querySelector('.online-admin');
+    class CompanyProject {
       #companyLabel = document.getElementById('companyLabel');
       #modalTanggal = document.getElementById('modal-tanggal');
       #modalLokasi = document.getElementById('modal-lokasi');
@@ -783,36 +750,67 @@
         containerCompanyProject.addEventListener('click', this.modalInfo.bind(this));
       }
 
-      async modalInfo({target}){
-        try{
+      async modalInfo({
+        target
+      }) {
+        try {
           const validEl = target.closest('#btn-project');
-          if(!validEl) return;
+          if (!validEl) return;
 
           const data = await this.fetchCompanyList();
-          if(!data) throw new Error("Fatal Error");
+          if (!data) throw new Error("Fatal Error");
 
-          const { is_finished: finished,
-                  project_location: location,
-                  project_address: address, 
-                  project_notes: notes, 
-                  start_project: startDate,
-                  title } = data[target.dataset.title];
-          
+          const {
+            is_finished: finished,
+            project_location: location,
+            project_address: address,
+            project_notes: notes,
+            start_project: startDate,
+            title
+          } = data[target.dataset.title];
+
           this.#companyLabel.innerText = title;
           this.#modalTanggal.value = startDate;
           this.#modalLokasi.value = location;
           this.#modalAlamat.value = address;
           this.#modalCatatan.value = notes;
-        } catch(err) {
+        } catch (err) {
           console.warn(err.message);
         }
       }
 
-      async fetchCompanyList(){
+      async fetchCompanyList() {
         return await fetch('./src/json/company-project.json')
-              .then(response => response.json());
+          .then(response => response.json());
       }
     }
 
     const companyProject = new CompanyProject();
+
+    var conn = new WebSocket('ws://localhost:9090');
+    conn.onopen = function(e) {
+      console.log("Connection established! -> dashboard-view");
+      const data = {
+        nik: <?= $_SESSION['nik']; ?>,
+        username: "<?= $_SESSION['username']; ?>",
+        type: "dashboard-view"
+      }
+      conn.send(JSON.stringify(data));
+    };
+
+    conn.onmessage = function(e) {
+      const data = JSON.parse(e.data);
+      console.log(data);
+
+      switch (data.type) {
+        case 'response':
+          onlineAdmin.innerText = data.onlineAdmin;
+          console.log(data?.response ?? '...');
+          break;
+        case 'close':
+          onlineAdmin.innerText = data.onlineAdmin;
+      }
+    }
+
+    // };
   </script>
