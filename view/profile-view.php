@@ -54,11 +54,11 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="../pages/sign-in.html">
+            <a class="nav-link" href="?menu=chat">
               <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                 <i class="ni ni-single-copy-04 text-warning text-sm opacity-10"></i>
               </div>
-              <span class="nav-link-text ms-1">Sign In</span>
+              <span class="nav-link-text ms-1">Chat</span>
             </a>
           </li>
           <li class="nav-item">
@@ -640,7 +640,7 @@
     position: fixed;">
     <div class="d-flex">
       <div class="toast-body">
-        Notification
+        Notification: <span class="notif-message"></span>
       </div>
       <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
@@ -678,6 +678,8 @@
     const bio = document.querySelector('.bio');
     const loading = document.querySelector('.loading');
     const btnUbah = document.querySelector('.ubah-data');
+
+    const notifMessage = document.querySelector('.notif-message');
 
     class Zip {
       constructor() {
@@ -758,4 +760,30 @@
       }
     }
     inpImage.addEventListener('change', handleLiveImageChange);
+  </script>
+  <script>
+    var conn = new WebSocket('ws://localhost:9090');
+    conn.onopen = function(e) {
+      console.log("Connection established! -> profile-view");
+      const data = {
+        nik: <?= $_SESSION['nik']; ?>,
+        username: "<?= $_SESSION['username']; ?>",
+        type: "profile-view"
+      }
+      conn.send(JSON.stringify(data));
+    };
+
+    conn.onmessage = function(e) {
+      const data = JSON.parse(e.data);
+      console.log(data);
+
+      switch (data.type) {
+        case 'response':
+          notifMessage.innerText = `current online admin ${data?.onlineAdmin ?? '-'}`;
+          console.log(data?.response ?? '');
+          break;
+        case 'close':
+          notifMessage.innerText = `current online admin ${data?.onlineAdmin ?? '-'}`;
+      }
+    }
   </script>

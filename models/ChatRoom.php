@@ -9,6 +9,7 @@ class ChatRoom
    private $my_total_message;
 
    private $friends_nik;
+   private $name_for_display;
 
    private $admin;
 
@@ -74,6 +75,16 @@ class ChatRoom
    public function setFriendsNik($friendsNik)
    {
       $this->friends_nik = $friendsNik;
+   }
+
+   public function getNameForDisplay()
+   {
+      return $this->name_for_display;
+   }
+
+   public function setNameForDisplay($nameForDisplay)
+   {
+      $this->name_for_display = $nameForDisplay;
    }
 
    public function __set($name, $value)

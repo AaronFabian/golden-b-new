@@ -36,7 +36,7 @@ class AdminDaoImpl
   {
     $link = PDOUtil::createConnection();
 
-    $query = "SELECT name FROM admin WHERE nik= ?";
+    $query = "SELECT name, username, email FROM admin WHERE nik= ?";
     $stmt = $link->prepare($query);
     $stmt->bindParam(1, $nik);
     $stmt->setFetchMode(PDO::FETCH_OBJ);

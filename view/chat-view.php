@@ -341,6 +341,12 @@
    .table tbody tr td:hover {
       text-decoration: underline;
    }
+
+   .table tbody tr th:active,
+   .table tbody tr td:active {
+      color: blue;
+      text-decoration: none;
+   }
 </style>
 <div class="container mt-4 me-1">
    <div class="row">
@@ -355,7 +361,7 @@
             <tbody class="table-chat-body">
                <!-- <tr>
                   <th scope="row">1</th>
-                  <td>Mark</td>
+                  <td class="contact-name">Mark</td>
                </tr> -->
 
             </tbody>
@@ -371,7 +377,7 @@
          </div>
          <div class="chat-partner-name">
             <span class="status online"></span>
-            <a target="_blank" href="https://www.facebook.com/mfreak">Someone</a>
+            <a target="_blank" href="#" class="guest-name"></a>
          </div>
          <div class="chatbox-icons bg-danger">
             <a href="javascript:void(0);"><i class="fa fa-minus"></i></a>
@@ -381,14 +387,14 @@
 
       <div class="chat-messages container-chat">
 
-         <div class="message-box-holder">
+         <!-- <div class="message-box-holder">
             <div class="message-box">
                There's something important I would like to share with you. Do you have some time?<br>
                <small>at 04.12</small>
             </div>
-         </div>
+         </div> -->
 
-         <div class="message-box-holder">
+         <!-- <div class="message-box-holder">
             <div class="message-sender">
                Someone
             </div>
@@ -396,9 +402,9 @@
                Yeah sure. Let's meet in the Einstein cafe this evening and discuss the matter. <br>
                <small>at 04.12</small>
             </div>
-         </div>
+         </div> -->
 
-         <div class="message-box-holder">
+         <!-- <div class="message-box-holder">
             <div class="message-sender">
                Someone
             </div>
@@ -406,7 +412,7 @@
                I thought of coming to your place and discuss about it but I had to finish my projects and I didn't have enough time to go out of the house. <br>
                <small>at 04.12</small>
             </div>
-         </div>
+         </div> -->
       </div>
 
       <div class="chat-input-holder">
@@ -615,6 +621,8 @@
 </div>
 <script>
    const containerChatBox = document.querySelector('.container-chat');
+   const tableChatBody = document.querySelector('.table-chat-body');
+   const labelGuestName = document.querySelector('.guest-name');
    const inpMsg = document.getElementById('chat-input');
    const btnSendMsg = document.getElementById('btnSendMsg');
    const containerTableChat = document.querySelector('.table-chat-body');
@@ -632,11 +640,7 @@
    };
 
    conn.onmessage = function(e) {
-      console.log(e.data);
-
       let data = JSON.parse(e.data);
-
-
 
       switch (data.type) {
          case 'parsing-contact':
@@ -645,48 +649,84 @@
                let markupContactsBody = `
                <tr>
                   <th scope="row">${++index}</th>
-                  <td>${contact[1]}</td>
+                  <td class="contact-name" data-nik="${contact[0]}">${contact[1]}</td>
                </tr>`
                containerTableChat.insertAdjacentHTML('beforeend', markupContactsBody)
             })
             break;
+         case 'data-message':
+            console.log(data);
+            if (data.relation == 'me') {
+               containerChatBox.innerHTML = '';
+               let markup = '';
+               data.message_user.forEach(msg => {
+                  markup = `<div class="message-box-holder">
+                                    <div class="message-sender">
+                                       ${data.relation == 'me' ? 
+                                          labelGuestName.innerText : 
+                                          msg[0]}
+                                    </div>
+                                    <div class="message-box message-partner">
+                                       ${msg[1]} <br>
+                                       <small>at ${msg[2]}</small>
+                                    </div>
+                                 </div>`;
+                  containerChatBox.insertAdjacentHTML('beforeend', markup);
+               })
+            } else {
+               console.log('no message to display.');
+            }
+            // let markup = ``;
+            // if (data.from == 'me') {
+            //    markup = `<div class="message-box-holder">
+            //       <div class="message-box">
+            //          ${data.messageData}<br>
+            //          <small>at ${data.dt}</small>
+            //       </div>
+            //    </div>`;
+            // } else {
+            //    markup = `<div class="message-box-holder">
+            //       <div class="message-sender">
+            //          ${data.userId}
+            //       </div>
+            //       <div class="message-box message-partner">
+            //          ${data.messageData} <br>
+            //          <small>at ${data.dt}</small>
+            //       </div>
+            //    </div>`;
+            // }
+            break;
       }
-
-      // let markup = ``;
-      // if (data.from == 'me') {
-      //    markup = `<div class="message-box-holder">
-      //       <div class="message-box">
-      //          ${data.messageData}<br>
-      //          <small>at ${data.dt}</small>
-      //       </div>
-      //    </div>`;
-      // } else {
-      //    markup = `<div class="message-box-holder">
-      //       <div class="message-sender">
-      //          ${data.userId}
-      //       </div>
-      //       <div class="message-box message-partner">
-      //          ${data.messageData} <br>
-      //          <small>at ${data.dt}</small>
-      //       </div>
-      //    </div>`;
-      // }
-
-      // containerChatBox.insertAdjacentHTML('beforeend', markup);
-      // inpMsg.value = '';
-
    };
 
-   btnSendMsg.onclick = (e) => {
-      e.preventDefault();
+   // btnSendMsg.onclick = (e) => {
+   //    e.preventDefault();
 
-      let message = inpMsg.value || 'default';
+   //    let message = inpMsg.value || 'default';
 
-      const data = {
-         userId: <?= $_SESSION['nik']; ?>,
-         messageData: message
+   //    const data = {
+   //       userId: <?= $_SESSION['nik']; ?>,
+   //       messageData: message,
+   //       type: 'chat-detail-request'
+   //    }
+
+   //    // conn.send(JSON.stringify(data));
+   // }
+
+   tableChatBody.addEventListener('click', (e) => {
+      const element = e.target.closest('.contact-name');
+      if (!element) return;
+
+      const request = element.dataset.nik;
+      const dataRequest = {
+         username: '<?= $_SESSION['username']; ?>',
+         reqBy: '<?= $_SESSION['nik']; ?>',
+         reqId: request,
+         type: 'chat-detail-request'
       }
+      labelGuestName.innerText = e.target.innerText;
+      conn.send(JSON.stringify(dataRequest));
+   })
 
-      // conn.send(JSON.stringify(data));
-   }
+   // conn.send(JSON.stringify(data));
 </script>
