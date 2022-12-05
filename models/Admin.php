@@ -18,7 +18,7 @@ class Admin
   private $urban;
   private $images;
   private $admin_token;
-  private $admin_connnection_id;
+  private $admin_connection_id;
 
   private $company_project;
 
@@ -164,12 +164,12 @@ class Admin
 
   public function getAdminConnectionId()
   {
-    return $this->admin_connnection_id;
+    return $this->admin_connection_id;
   }
 
   public function setAdminConnectionId($adminConnnectionId)
   {
-    $this->admin_connnection_id = $adminConnnectionId;
+    $this->admin_connection_id = $adminConnnectionId;
   }
 
   public function getCompanyProject()

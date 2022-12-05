@@ -634,6 +634,8 @@
    const inpMsg = document.getElementById('chat-input');
    const btnSendMsg = document.getElementById('btnSendMsg');
    const containerTableChat = document.querySelector('.table-chat-body');
+   let currentOpenedChatRoom = false;
+   let currentOpenedRelation = false;
 
    var conn = new WebSocket('ws://localhost:9090');
    conn.onopen = function(e) {
@@ -690,6 +692,7 @@
                })
             }
             btnSendMsg.dataset.roomId = data.room_id;
+            currentOpenedChatRoom = data.room_id;
             break;
          case 'parsing-new-chat':
             console.log(data);
@@ -697,6 +700,17 @@
                let markup = `<div class="message-box-holder">
                               <div class="message-box">
                                  ${data.message}
+                              </div>
+                           </div>`;
+               containerChatBox.insertAdjacentHTML('beforeend', markup);
+            } else if (currentOpenedChatRoom == data.room_id) {
+               let markup = `<div class="message-box-holder">
+                              <div class="message-sender">
+                                 ${data.relation}
+                              </div>
+                              <div class="message-box message-partner">
+                                 ${data.message} <br>
+                                 <small>at ${data.date}</small>
                               </div>
                            </div>`;
                containerChatBox.insertAdjacentHTML('beforeend', markup);
