@@ -109,6 +109,7 @@ class Chat implements MessageComponentInterface
             }
             break;
          case 'chat-detail-request':
+            echo $userData['username'] . " is requesting data..." . "\n";
             $requestedBy = new ChatRoom();
             $requestedBy->setAdmin($userData['reqBy']);
             $requestedBy->setForGuestNik($userData['reqId']);
@@ -116,31 +117,45 @@ class Chat implements MessageComponentInterface
 
             $arrayMessage = [];
             $messageFor = null;
+            $roomID = null;
             foreach ($requestedMessageData as $r) {
-               $arrayMessage[] = [
-                  $r->getNameForDisplay(),
-                  $r->getMessage(),
-                  $r->getRoomCreatedDate(),
-                  $requestedBy->getForGuestNik()
-               ];
-               if (!$messageFor)
-                  $messageFor[] = $r->getNameForDisplay();
+               $arrayMessage[] = [$r->getNameForDisplay(), $r->getMessage(), $r->getRoomCreatedDate()];
+               if (!$messageFor) $messageFor[] = $r->getNameForDisplay();
+               if (!$roomID) $roomID = $r->getRoomId();
             }
 
             foreach ($this->clients as $client) {
-               $from == $client ?
+               if ($from == $client)
                   $from->send(json_encode([
                      'message_user' => $arrayMessage,
                      'type' => 'data-message',
-                     'relation' => "me"
-                  ])) :
-                  $client->send(json_encode([
-                     'message_user' => $arrayMessage,
-                     'type' => 'data-message',
-                     'relation' => $messageFor
+                     'relation' => "me",
+                     'room_id' => $roomID
                   ]));
             }
-            echo $userData['username'] . " is requesting data..." . "\n";
+            echo $userData['username'] . " requesting data success" . "\n";
+            break;
+         case 'chat-send-request':
+            echo $userData['username'] . " is requesting for sending new message" . "\n";
+            $messageData = htmlspecialchars(trim($userData['messageData']));
+            $messageFor = htmlspecialchars(trim($userData['messageFor']));
+            $roomID = htmlspecialchars(trim($userData['room_id']));
+            $messageFrom = htmlspecialchars(trim($userData['userId']));
+
+            $newChatRoom = new ChatRoom();
+            $newChatRoom->setAdmin($messageFrom);
+            $newChatRoom->setForGuestNik($messageFor);
+            $newChatRoom->setMessage($messageData);
+            $newChatRoom->setRoomId($roomID);
+
+            $insertingNewChatStatus = $this->chatRoomDaoImpl->insertNewMessage($newChatRoom);
+            $from->send(json_encode([
+               'status' => $insertingNewChatStatus,
+               'messageFor' => 'me', // $newChatRoom->getForGuestNik()
+               'message' => $newChatRoom->getMessage(),
+               'type' => 'parsing-new-chat'
+            ]));
+            echo "sending new message completed..." . "\n";
             break;
          case 'tables-view':
             foreach ($this->clients as $client) {
@@ -206,3 +221,10 @@ class Chat implements MessageComponentInterface
       $conn->close();
    }
 }
+
+
+// $client->send(json_encode([
+               //    'message_user' => $arrayMessage,
+               //    'type' => 'data-message',
+               //    'relation' => $messageFor
+               // ]));

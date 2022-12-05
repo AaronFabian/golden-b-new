@@ -7,11 +7,13 @@ class ChatRoom
    private $message;
    private $room_created_date;
    private $my_total_message;
+   private $room_id;
+
+   private $admin;
 
    private $friends_nik;
    private $name_for_display;
 
-   private $admin;
 
    public function getForGuestNik()
    {
@@ -85,6 +87,16 @@ class ChatRoom
    public function setNameForDisplay($nameForDisplay)
    {
       $this->name_for_display = $nameForDisplay;
+   }
+
+   public function getRoomId()
+   {
+      return $this->room_id;
+   }
+
+   public function setRoomId($roomId)
+   {
+      $this->room_id = $roomId;
    }
 
    public function __set($name, $value)

@@ -139,11 +139,31 @@ class AdminDaoImpl
     $result = 0;
     $link = PDOUtil::createConnection();
 
-    $query = "UPDATE new_golden_db.admin SET status = ? WHERE username = ? AND nik = ?";
+    $query = "UPDATE new_golden_db.admin SET status= ? WHERE username= ? AND nik= ?";
     $stmt = $link->prepare($query);
     $stmt->bindParam(1, $status);
     $stmt->bindParam(2, $username);
     $stmt->bindParam(3, $nik);
+
+    $link->beginTransaction();
+    if ($stmt->execute()) {
+      $link->commit();
+      $result = 1;
+    } else {
+      $link->rollBack();
+    }
+
+    return $result;
+  }
+
+  public function updateLiveUsersByConnectionId($connID)
+  {
+    $result = 0;
+    $link = PDOUtil::createConnection();
+
+    $query = "UPDATE admin SET status= 0, connection_id= 0 FROM admin WHERE connection_id= ? AND nik= ?";
+    $stmt = $link->prepare($query);
+    $stmt->bindParam(1, $connID);
 
     $link->beginTransaction();
     if ($stmt->execute()) {

@@ -241,6 +241,14 @@
       text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
    }
 
+   .message-send:hover {
+      opacity: 0.8;
+   }
+
+   .message-send:active {
+      background-color: #ffae00 !important;
+   }
+
    .attachment-panel {
       padding: 3px 10px;
       text-align: right;
@@ -656,67 +664,51 @@
             break;
          case 'data-message':
             console.log(data);
+            containerChatBox.innerHTML = '';
+            let markup = '';
             if (data.relation == 'me') {
-               containerChatBox.innerHTML = '';
-               let markup = '';
                data.message_user.forEach(msg => {
-                  markup = `<div class="message-box-holder">
-                                    <div class="message-sender">
-                                       ${data.relation == 'me' ? 
-                                          labelGuestName.innerText : 
-                                          msg[0]}
-                                    </div>
-                                    <div class="message-box message-partner">
-                                       ${msg[1]} <br>
-                                       <small>at ${msg[2]}</small>
-                                    </div>
-                                 </div>`;
+                  if (msg[0] !== '<?= $_SESSION['name']; ?>') {
+                     markup = `<div class="message-box-holder">
+                                       <div class="message-sender">
+                                          ${msg[0]}
+                                       </div>
+                                       <div class="message-box message-partner">
+                                          ${msg[1]} <br>
+                                          <small>at ${msg[2]}</small>
+                                       </div>
+                                    </div>`;
+                  } else {
+                     markup = `
+                     <div class="message-box-holder">
+                        <div class="message-box">
+                           ${msg[1]}
+                        </div>
+                     </div>`
+                  }
                   containerChatBox.insertAdjacentHTML('beforeend', markup);
                })
-            } else {
-               console.log('no message to display.');
             }
-            // let markup = ``;
-            // if (data.from == 'me') {
-            //    markup = `<div class="message-box-holder">
-            //       <div class="message-box">
-            //          ${data.messageData}<br>
-            //          <small>at ${data.dt}</small>
-            //       </div>
-            //    </div>`;
-            // } else {
-            //    markup = `<div class="message-box-holder">
-            //       <div class="message-sender">
-            //          ${data.userId}
-            //       </div>
-            //       <div class="message-box message-partner">
-            //          ${data.messageData} <br>
-            //          <small>at ${data.dt}</small>
-            //       </div>
-            //    </div>`;
-            // }
+            btnSendMsg.dataset.roomId = data.room_id;
             break;
+         case 'parsing-new-chat':
+            console.log(data);
+            if (data.messageFor === 'me') {
+               let markup = `<div class="message-box-holder">
+                              <div class="message-box">
+                                 ${data.message}
+                              </div>
+                           </div>`;
+               containerChatBox.insertAdjacentHTML('beforeend', markup);
+            }
       }
    };
-
-   // btnSendMsg.onclick = (e) => {
-   //    e.preventDefault();
-
-   //    let message = inpMsg.value || 'default';
-
-   //    const data = {
-   //       userId: <?= $_SESSION['nik']; ?>,
-   //       messageData: message,
-   //       type: 'chat-detail-request'
-   //    }
-
-   //    // conn.send(JSON.stringify(data));
-   // }
 
    tableChatBody.addEventListener('click', (e) => {
       const element = e.target.closest('.contact-name');
       if (!element) return;
 
+      btnSendMsg.dataset.messageFor = element.dataset.nik;
       const request = element.dataset.nik;
       const dataRequest = {
          username: '<?= $_SESSION['username']; ?>',
@@ -727,6 +719,27 @@
       labelGuestName.innerText = e.target.innerText;
       conn.send(JSON.stringify(dataRequest));
    })
+
+   btnSendMsg.addEventListener('click', (e) => {
+      e.preventDefault();
+
+      let message = inpMsg.value || null;
+      if (!message) return;
+
+      const data = {
+         username: '<?= $_SESSION['username']; ?>',
+         userId: <?= $_SESSION['nik']; ?>,
+         messageData: message,
+         messageFor: btnSendMsg.dataset.messageFor,
+         type: 'chat-send-request',
+         room_id: btnSendMsg.dataset.roomId
+      }
+
+      console.log(data);
+      conn.send(JSON.stringify(data));
+   })
+
+
 
    // conn.send(JSON.stringify(data));
 </script>
