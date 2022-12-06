@@ -32,6 +32,19 @@ class AdminDaoImpl
     return $stmt->fetchObject('admin');
   }
 
+  public function fetchAdminNikAndName()
+  {
+    $link = PDOUtil::createConnection();
+
+    $query = "SELECT name, nik FROM admin";
+    $stmt = $link->prepare($query);
+    $stmt->setFetchMode(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, 'Admin');
+    $stmt->execute();
+
+    $link = null;
+    return $stmt->fetchAll();
+  }
+
   public function fetchLiveContact($nik)
   {
     $link = PDOUtil::createConnection();

@@ -41,7 +41,6 @@ class Chat implements MessageComponentInterface
       parse_str($querystring, $queryArr);
 
       if (isset($queryArr['token'])) {
-
          $newAdmin = new Admin();
          $newAdmin->setAdminToken($queryArr['token']);
          $newAdmin->setAdminConnectionId($conn->recourceId);
@@ -68,6 +67,7 @@ class Chat implements MessageComponentInterface
             $newAdmin->setStatus(1);
             $newAdmin->setUsername($userData['username']);
             $this->adminDaoImpl->updateAdminConnection($newAdmin);
+
             foreach ($this->clients as $client) {
                if ($from == $client)
                   $from->send(json_encode([
@@ -115,6 +115,42 @@ class Chat implements MessageComponentInterface
                   ]));
             }
             break;
+         case 'chat-discover-friend-request':
+            echo $userData['username'] . " is requesting discover friend" . "\n";
+            $username = $userData['username'];
+            $discoverFor = $userData['discoverFor'];
+            $userId = $userData['userId'];
+
+            $newChatRoom = new ChatRoom();
+            $newChatRoom->setAdmin($userId);
+            $newChatRoom->setForGuestNik($discoverFor);
+
+            $isRoomAvailble = $this->chatRoomDaoImpl->fetchIsRoomAvailble($newChatRoom);
+            if (!$isRoomAvailble) {
+               $from->send(json_encode([
+                  'status' => 'new chat room',
+                  'messageRequestFor' => $newChatRoom->getForGuestNik(),
+                  'message' => 'say hello to your friend ❤️‍🔥',
+                  'room_id' => uniqid(),
+                  'type' => 'parsing-new-room'
+               ]));
+            } else {
+               $requestedMessageData = $this->chatRoomDaoImpl->fetchMessageData($newChatRoom);
+               $arrayMessage = [];
+               $messageFor = null;
+               foreach ($requestedMessageData as $r) {
+                  $arrayMessage[] = [$r->getNameForDisplay(), $r->getMessage(), $r->getRoomCreatedDate()];
+                  if (!$messageFor) $messageFor[] = $r->getNameForDisplay();
+               }
+               $from->send(json_encode([
+                  'status' => 'chat room already available',
+                  'message_user' => $arrayMessage,
+                  'type' => 'data-message',
+                  'relation' => 'me',
+                  'room_id' => $isRoomAvailble->getRoomId()
+               ]));
+            }
+            break;
          case 'chat-detail-request':
             echo $userData['username'] . " is requesting data..." . "\n";
             $requestedBy = new ChatRoom();
@@ -136,7 +172,7 @@ class Chat implements MessageComponentInterface
                   $from->send(json_encode([
                      'message_user' => $arrayMessage,
                      'type' => 'data-message',
-                     'relation' => "me",
+                     'relation' => 'me',
                      'room_id' => $roomID
                   ]));
             }
@@ -172,10 +208,10 @@ class Chat implements MessageComponentInterface
                      'status' => 'new message',
                      'messageFor' => $newChatRoom->getForGuestNik(),
                      'message' => $newChatRoom->getMessage(),
-                     'type' => 'parsing-new-chat',
-                     'room_id' => $roomID,
+                     'room_id' => $newChatRoom->getRoomId(),
                      'relation' => $getLatestMessageInfo->getNameForDisplay(),
-                     'date' => $getLatestMessageInfo->getRoomCreatedDate()
+                     'date' => $getLatestMessageInfo->getRoomCreatedDate(),
+                     'type' => 'parsing-new-chat'
                   ]));
                }
             }
@@ -216,13 +252,6 @@ class Chat implements MessageComponentInterface
       }
 
       // log server message...
-      echo sprintf(
-         'Connection %d sending message "%s" to %d other connection%s' . "\n",
-         $from->resourceId,
-         $msg,
-         $numRecv,
-         $numRecv < 1 ? '' : 's'
-      );
       echo $userData["username"] . " currently at " . $userData['type'] .  " area" . "\n";
       echo "Number of online client : " . $numRecv + 1 . "\n\n";
    }
@@ -262,3 +291,11 @@ class Chat implements MessageComponentInterface
                //       'relation' => $newChatRoom->getAdmin()
                //    ]));
                // }
+
+               // echo sprintf(
+               //    'Connection %d sending message "%s" to %d other connection%s' . "\n",
+               //    $from->resourceId,
+               //    $msg,
+               //    $numRecv,
+               //    $numRecv < 1 ? '' : 's'
+               // );

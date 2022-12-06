@@ -4,14 +4,14 @@ class TableController
 {
 
    private $companyNewsDao;
-   private $adminDao;
+   private $adminDaoImpl;
    private $clientDao;
    private $favoriteDao;
 
    public function __construct()
    {
       $this->companyNewsDao = new CompanyNewsDaoImpl();
-      $this->adminDao = new AdminDaoImpl();
+      $this->adminDaoImpl = new AdminDaoImpl();
       $this->clientDao = new ClientDaoImpl();
       $this->favoriteDao = new FavoriteDaoImpl();
    }
@@ -56,7 +56,7 @@ class TableController
       foreach ($companyNewsArr as $c)
          $arrayLikes[] = $this->companyNewsDao->fetchFavorite($c->getId())[0];
 
-      $adminArr = $this->adminDao->fetchAllAdmin();
+      $adminArr = $this->adminDaoImpl->fetchAllAdmin();
       $clientArr = $this->clientDao->fetchAllClient();
       include_once "./view/tables-view.php";
    }
@@ -84,7 +84,7 @@ class TableController
       $adminEmail = filter_input(INPUT_GET, "email", FILTER_SANITIZE_SPECIAL_CHARS);
 
       if (isset($adminEmail))
-         $availableAdmin = $this->adminDao->fetchOneAdmin($adminEmail);
+         $availableAdmin = $this->adminDaoImpl->fetchOneAdmin($adminEmail);
 
       include_once "./view/admin-detail-view.php";
    }
@@ -92,6 +92,7 @@ class TableController
    public function chat()
    {
 
+      $discoverFriendList = $this->adminDaoImpl->fetchAdminNikAndName();
       include_once "./view/chat-view.php";
    }
 }

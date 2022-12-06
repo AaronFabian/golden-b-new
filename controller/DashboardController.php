@@ -24,4 +24,9 @@ class DashboardController
   {
     include_once "./view/client_dashboard-view.php";
   }
+
+  public function liveIndex()
+  {
+    # code...
+  }
 }

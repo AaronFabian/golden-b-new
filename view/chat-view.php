@@ -363,7 +363,7 @@
             <thead>
                <tr>
                   <th scope="col">No</th>
-                  <th scope="col">Name</th>
+                  <th scope="col">Recent chat</th>
                </tr>
             </thead>
             <tbody class="table-chat-body">
@@ -377,8 +377,34 @@
       </div>
    </div>
 </div>
+<div class="container mt-4 me-1">
+   <div class="row">
+      <div class="col-4">
+         <table class="table">
+            <thead>
+               <tr>
+                  <th scope="col">No</th>
+                  <th scope="col">Discover Friend !</th>
+               </tr>
+            </thead>
+            <tbody class="table-discover-friend">
+               <?php $i = 1; ?>
+               <?php foreach ($discoverFriendList as $index => $d) : ?>
+                  <?php if ($d->getNik() !== $_SESSION['nik']) : ?>
+                     <tr>
+                        <th scope="row"><?= $i; ?></th>
+                        <td class="contact-name" data-nik="<?= $d->getNik(); ?>"><?= $d->getName(); ?></td>
+                     </tr>
+                     <?php $i++; ?>
+                  <?php endif; ?>
+               <?php endforeach; ?>
+            </tbody>
+         </table>
+      </div>
+   </div>
+</div>
 <div class="chatbox-holder">
-   <div class="chatbox">
+   <div class="chatbox chatbox-min">
       <div class="chatbox-top">
          <div class="chatbox-avatar">
             <a target="_blank" href="#"><img src="./src/img/team-1.jpg" /></a>
@@ -387,7 +413,7 @@
             <span class="status online"></span>
             <a target="_blank" href="#" class="guest-name"></a>
          </div>
-         <div class="chatbox-icons bg-danger">
+         <div class="chatbox-icons bg-danger" onclick="minimizeChatBoxScreen()">
             <a href="javascript:void(0);"><i class="fa fa-minus"></i></a>
             <!-- <a href="javascript:void(0);"><i class="fa fa-close"></i></a> -->
          </div>
@@ -395,32 +421,7 @@
 
       <div class="chat-messages container-chat">
 
-         <!-- <div class="message-box-holder">
-            <div class="message-box">
-               There's something important I would like to share with you. Do you have some time?<br>
-               <small>at 04.12</small>
-            </div>
-         </div> -->
 
-         <!-- <div class="message-box-holder">
-            <div class="message-sender">
-               Someone
-            </div>
-            <div class="message-box message-partner">
-               Yeah sure. Let's meet in the Einstein cafe this evening and discuss the matter. <br>
-               <small>at 04.12</small>
-            </div>
-         </div> -->
-
-         <!-- <div class="message-box-holder">
-            <div class="message-sender">
-               Someone
-            </div>
-            <div class="message-box message-partner chatTextarea">
-               I thought of coming to your place and discuss about it but I had to finish my projects and I didn't have enough time to go out of the house. <br>
-               <small>at 04.12</small>
-            </div>
-         </div> -->
       </div>
 
       <div class="chat-input-holder">
@@ -627,13 +628,17 @@
       </div>
    </div> -->
 </div>
+<a class="btn btn-primary ms-10" href="?menu=tables">Kembali</a>
 <script>
    const containerChatBox = document.querySelector('.container-chat');
    const tableChatBody = document.querySelector('.table-chat-body');
+   const tableDiscoverFriend = document.querySelector('.table-discover-friend');
    const labelGuestName = document.querySelector('.guest-name');
    const inpMsg = document.getElementById('chat-input');
    const btnSendMsg = document.getElementById('btnSendMsg');
+   const chatBoxHeaderForMinimize = document.querySelector('.chatbox');
    const containerTableChat = document.querySelector('.table-chat-body');
+   const btnMinimizeChatBox = document.querySelector('.chatbox-icons');
    let currentOpenedChatRoom = false;
    let currentOpenedRelation = false;
 
@@ -651,6 +656,7 @@
 
    conn.onmessage = function(e) {
       let data = JSON.parse(e.data);
+      let markup = '';
 
       switch (data.type) {
          case 'parsing-contact':
@@ -667,7 +673,6 @@
          case 'data-message':
             console.log(data);
             containerChatBox.innerHTML = '';
-            let markup = '';
             if (data.relation == 'me') {
                data.message_user.forEach(msg => {
                   if (msg[0] !== '<?= $_SESSION['name']; ?>') {
@@ -697,14 +702,14 @@
          case 'parsing-new-chat':
             console.log(data);
             if (data.messageFor === 'me') {
-               let markup = `<div class="message-box-holder">
+               markup = `<div class="message-box-holder">
                               <div class="message-box">
                                  ${data.message}
                               </div>
                            </div>`;
                containerChatBox.insertAdjacentHTML('beforeend', markup);
             } else if (currentOpenedChatRoom == data.room_id) {
-               let markup = `<div class="message-box-holder">
+               markup = `<div class="message-box-holder">
                               <div class="message-sender">
                                  ${data.relation}
                               </div>
@@ -715,6 +720,20 @@
                            </div>`;
                containerChatBox.insertAdjacentHTML('beforeend', markup);
             }
+            break;
+         case 'parsing-new-room':
+            console.log(data);
+            markup = `<div class="message-box-holder">
+                              <div class="message-box">
+                                 ${data.message},
+                              </div>
+                           </div>`;
+            containerChatBox.innerHTML = '';
+            btnSendMsg.dataset.roomId = data.room_id;
+            btnSendMsg.dataset.messageFor = data.messageRequestFor;
+            currentOpenedChatRoom = data.room_id;
+            containerChatBox.insertAdjacentHTML('beforeend', markup);
+            break;
       }
    };
 
@@ -722,7 +741,6 @@
       const element = e.target.closest('.contact-name');
       if (!element) return;
 
-      btnSendMsg.dataset.messageFor = element.dataset.nik;
       const request = element.dataset.nik;
       const dataRequest = {
          username: '<?= $_SESSION['username']; ?>',
@@ -731,6 +749,8 @@
          type: 'chat-detail-request'
       }
       labelGuestName.innerText = e.target.innerText;
+      btnSendMsg.dataset.messageFor = element.dataset.nik;
+      chatBoxHeaderForMinimize.classList.remove('chatbox-min');
       conn.send(JSON.stringify(dataRequest));
    })
 
@@ -739,6 +759,7 @@
 
       let message = inpMsg.value || null;
       if (!message) return;
+      if (!currentOpenedChatRoom) return;
 
       const data = {
          username: '<?= $_SESSION['username']; ?>',
@@ -751,9 +772,30 @@
 
       console.log(data);
       conn.send(JSON.stringify(data));
+      inpMsg.value = '';
    })
 
+   tableDiscoverFriend.addEventListener('click', (e) => {
+      const element = e.target.closest('.contact-name');
+      if (!element) return;
 
+      const data = {
+         username: '<?= $_SESSION['username']; ?>',
+         userId: <?= $_SESSION['nik'] ?>,
+         discoverFor: element.dataset.nik,
+         type: 'chat-discover-friend-request'
+      }
+
+      console.log(data);
+      btnSendMsg.dataset.messageFor = element.dataset.nik;
+      labelGuestName.innerText = e.target.innerText;
+      chatBoxHeaderForMinimize.classList.remove('chatbox-min');
+      conn.send(JSON.stringify(data));
+   })
+
+   function minimizeChatBoxScreen() {
+      chatBoxHeaderForMinimize.classList.add('chatbox-min');
+   }
 
    // conn.send(JSON.stringify(data));
 </script>
