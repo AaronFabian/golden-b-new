@@ -176,7 +176,6 @@ class Chat implements MessageComponentInterface
                      'room_id' => $roomID
                   ]));
             }
-
             echo $userData['username'] . " requesting data success" . "\n";
             break;
          case 'chat-send-request':
@@ -192,7 +191,13 @@ class Chat implements MessageComponentInterface
             $newChatRoom->setMessage($messageData);
             $newChatRoom->setRoomId($roomID);
 
-            $insertingNewChatStatus = $this->chatRoomDaoImpl->insertNewMessage($newChatRoom);
+            $isRoomAvailble = $this->chatRoomDaoImpl->fetchIsRoomAvailble($newChatRoom);
+            if (!$isRoomAvailble) {
+               $insertingNewChatStatus = $this->chatRoomDaoImpl->insertNewMessage($newChatRoom);
+            } else {
+               $newChatRoom->setRoomId($isRoomAvailble->getRoomId());
+               $insertingNewChatStatus = $this->chatRoomDaoImpl->insertNewMessage($newChatRoom);
+            }
             $getLatestMessageInfo = $this->chatRoomDaoImpl->fetchLatestMessageInfo($newChatRoom);
 
             foreach ($this->clients as $client) {
@@ -243,7 +248,7 @@ class Chat implements MessageComponentInterface
                   ]));
                else
                   $client->send(json_encode([
-                     'response' => $userData['username'] . ' is now online :)',
+                     'response' => 'make online status',
                      'onlineAdmin' => $numRecv + 1,
                      'type' => 'response',
                   ]));
@@ -274,28 +279,3 @@ class Chat implements MessageComponentInterface
       $conn->close();
    }
 }
-
-
-// $client->send(json_encode([
-               //    'message_user' => $arrayMessage,
-               //    'type' => 'data-message',
-               //    'relation' => $messageFor
-               // ]));
-
-               // else if ($client->recourceId == $messageRelation) {
-               //    $client->send(json_encode([
-               //       'status' => 'new message',
-               //       'messageFor' => $newChatRoom->getForGuestNik(),
-               //       'message' => $newChatRoom->getMessage(),
-               //       'type' => 'parsing-new-chat',
-               //       'relation' => $newChatRoom->getAdmin()
-               //    ]));
-               // }
-
-               // echo sprintf(
-               //    'Connection %d sending message "%s" to %d other connection%s' . "\n",
-               //    $from->resourceId,
-               //    $msg,
-               //    $numRecv,
-               //    $numRecv < 1 ? '' : 's'
-               // );
