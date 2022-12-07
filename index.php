@@ -10,7 +10,6 @@ include_once "./controller/LoginController.php";
 include_once "./controller/DashboardController.php";
 include_once "./controller/TableController.php";
 include_once "./controller/ProfileController.php";
-include_once "./controller/SuperUpdateController.php";
 include_once "./dao/AdminDaoImpl.php";
 include_once "./dao/CompanyProjectDaoImpl.php";
 include_once "./dao/CompanyNewsDaoImpl.php";

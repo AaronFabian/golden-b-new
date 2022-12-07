@@ -211,7 +211,7 @@
           </div>
           <div class="card-body px-0 pt-0 pb-2">
             <div class="table-responsive p-0">
-              <table class="table align-items-center mb-0" id="adminTable">
+              <table class="table align-items-center mb-0">
                 <thead>
                   <tr>
                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Judul</th>
@@ -293,7 +293,7 @@
                       <td>
                         <div class="d-flex px-2">
                           <div>
-                            <img src="./src/img/uploads/<?= $ads->getImages() ? $ads->getImages() : "apple-icon.png" ?>" class="avatar avatar-sm rounded-circle me-2" alt="spotify">
+                            <img src="./src/img/uploads/<?= $ads->getImages() ? $ads->getImages() : 'ava' . random_int(1, 4) . '-bg.webp' ?>" class="avatar avatar-sm rounded-circle me-2" alt="spotify">
                           </div>
                           <div class="my-auto">
                             <h6 class="mb-0 text-sm"><?= StringUtil::convertTitle($ads->getName()); ?></h6>
@@ -572,9 +572,9 @@
   });
 </script>
 <script>
-  $(document).ready(function() {
-    $('#adminTable').DataTable();
-  });
+  // $(document).ready(function() {
+  //   $('#adminTable').DataTable();
+  // });
 
   var conn = new WebSocket('ws://localhost:9090');
   conn.onopen = function(e) {

@@ -36,7 +36,7 @@ class AdminDaoImpl
   {
     $link = PDOUtil::createConnection();
 
-    $query = "SELECT name, nik FROM admin";
+    $query = "SELECT name, nik, images FROM admin";
     $stmt = $link->prepare($query);
     $stmt->setFetchMode(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, 'Admin');
     $stmt->execute();
@@ -49,7 +49,7 @@ class AdminDaoImpl
   {
     $link = PDOUtil::createConnection();
 
-    $query = "SELECT name, username, email, admin_connection_id FROM admin WHERE nik= ?";
+    $query = "SELECT name, username, email, images ,admin_connection_id FROM admin WHERE nik= ?";
     $stmt = $link->prepare($query);
     $stmt->bindParam(1, $nik);
     $stmt->setFetchMode(PDO::FETCH_OBJ);

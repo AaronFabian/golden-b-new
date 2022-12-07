@@ -8,7 +8,7 @@
                   <div class="col-4 col-lg-4 order-lg-2">
                      <div class="mt-n4 mt-lg-n6 mb-4 mb-lg-0">
                         <a href="javascript:;">
-                           <img src="./src/img/uploads/<?= $availableAdmin->getImages(); ?>" class="rounded-circle img-fluid border border-2 border-white" style="width: 800px;height: 120px;" />
+                           <img src="./src/img/uploads/<?= $availableAdmin->getImages() ? $availableAdmin->getImages() : 'ava' . random_int(1, 4) . '-bg.webp'; ?>" class="rounded-circle img-fluid border border-2 border-white" style="width: 800px;height: 120px;" />
                         </a>
                      </div>
                   </div>

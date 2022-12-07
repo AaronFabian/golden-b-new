@@ -13,6 +13,7 @@ class ChatRoom
 
    private $friends_nik;
    private $name_for_display;
+   private $images_for_display;
 
 
    public function getForGuestNik()
@@ -87,6 +88,20 @@ class ChatRoom
    public function setNameForDisplay($nameForDisplay)
    {
       $this->name_for_display = $nameForDisplay;
+   }
+
+   public function getImagesForDisplay()
+   {
+      if (!isset($this->images_for_display)) {
+         $this->images_for_display = new Admin();
+      }
+
+      return $this->images_for_display;
+   }
+
+   public function setImagesForDisplay($imagesForDisplay)
+   {
+      $this->images_for_display = $imagesForDisplay;
    }
 
    public function getRoomId()

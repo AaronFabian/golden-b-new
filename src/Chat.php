@@ -98,7 +98,12 @@ class Chat implements MessageComponentInterface
             $fetchFriendsNik = [];
             foreach ($friendList as $f) {
                $friendObj = $this->adminDaoImpl->fetchLiveContact($f->getFriendsNik());
-               $fetchFriendsNik[] = [$f->getFriendsNik(), $friendObj->getName(), $friendObj->getEmail()];
+               $fetchFriendsNik[] = [
+                  $f->getFriendsNik(), // 0
+                  $friendObj->getName(), // 1
+                  $friendObj->getEmail(), // 2
+                  $friendObj->getImages() // 3
+               ];
             }
 
             foreach ($this->clients as $client) {
@@ -139,7 +144,12 @@ class Chat implements MessageComponentInterface
                $arrayMessage = [];
                $messageFor = null;
                foreach ($requestedMessageData as $r) {
-                  $arrayMessage[] = [$r->getNameForDisplay(), $r->getMessage(), $r->getRoomCreatedDate()];
+                  $arrayMessage[] = [
+                     $r->getNameForDisplay(),
+                     $r->getMessage(),
+                     $r->getRoomCreatedDate(),
+                     $r->getImagesForDisplay()
+                  ];
                   if (!$messageFor) $messageFor[] = $r->getNameForDisplay();
                }
                $from->send(json_encode([
@@ -156,26 +166,29 @@ class Chat implements MessageComponentInterface
             $requestedBy = new ChatRoom();
             $requestedBy->setAdmin($userData['reqBy']);
             $requestedBy->setForGuestNik($userData['reqId']);
+
+            $newAdmin = new Admin();
+            $newAdmin->setImages($userData['friendImages']);
             $requestedMessageData = $this->chatRoomDaoImpl->fetchMessageData($requestedBy);
 
             $arrayMessage = [];
             $messageFor = null;
             $roomID = null;
             foreach ($requestedMessageData as $r) {
-               $arrayMessage[] = [$r->getNameForDisplay(), $r->getMessage(), $r->getRoomCreatedDate()];
+               $arrayMessage[] = [
+                  $r->getNameForDisplay(), $r->getMessage(),
+                  $r->getRoomCreatedDate(), $r->getImagesForDisplay()
+               ];
                if (!$messageFor) $messageFor[] = $r->getNameForDisplay();
                if (!$roomID) $roomID = $r->getRoomId();
             }
 
-            foreach ($this->clients as $client) {
-               if ($from == $client)
-                  $from->send(json_encode([
-                     'message_user' => $arrayMessage,
-                     'type' => 'data-message',
-                     'relation' => 'me',
-                     'room_id' => $roomID
-                  ]));
-            }
+            $from->send(json_encode([
+               'message_user' => $arrayMessage, // 0
+               'relation' => 'me', // 1
+               'room_id' => $roomID, // 2
+               'type' => 'data-message', // 3
+            ]));
             echo $userData['username'] . " requesting data success" . "\n";
             break;
          case 'chat-send-request':
@@ -206,6 +219,10 @@ class Chat implements MessageComponentInterface
                      'status' => $insertingNewChatStatus,
                      'messageFor' => 'me', // $newChatRoom->getForGuestNik()
                      'message' => $newChatRoom->getMessage(),
+                     'room_id' => $newChatRoom->getRoomId(),
+                     'relation' => $getLatestMessageInfo->getNameForDisplay(),
+                     'date' => $getLatestMessageInfo->getRoomCreatedDate(),
+                     'images' => $getLatestMessageInfo->getImagesForDisplay(),
                      'type' => 'parsing-new-chat'
                   ]));
                } else {
@@ -216,6 +233,7 @@ class Chat implements MessageComponentInterface
                      'room_id' => $newChatRoom->getRoomId(),
                      'relation' => $getLatestMessageInfo->getNameForDisplay(),
                      'date' => $getLatestMessageInfo->getRoomCreatedDate(),
+                     'images' => $getLatestMessageInfo->getImagesForDisplay(),
                      'type' => 'parsing-new-chat'
                   ]));
                }
