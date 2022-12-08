@@ -384,7 +384,7 @@
                data.message_user.forEach(msg => {
                   if (msg[0] !== '<?= $_SESSION['name']; ?>') {
                      markup = `<div class="d-flex flex-row justify-content-start">
-                                 <img src="src/img/uploads/${msg[3] ? msg[3] : 'ava1-bg.webp'}" alt="avatar 1" style="width: 45px; height: 100%;">
+                                 <img src="src/img/uploads/${typeof msg[3] == 'object' ? 'ava1-bg.webp' : msg[3]}" alt="avatar 1" style="width: 45px; height: 100%;">
                                  <div>
                                     <p class="small p-2 ms-3 mb-1 rounded-3" style="background-color: #f5f6f7;">${msg[1]}</p>
                                     <p class="small ms-3 mb-3 rounded-3 text-muted float-end">${msg[0]} | ${msg[2]}</p>
@@ -396,7 +396,7 @@
                                     <p class="small p-2 me-3 mb-1 text-white rounded-3 bg-primary">${msg[1]}</p>
                                     <p class="small me-3 mb-3 rounded-3 text-muted"> me | ${msg[2]}</p>
                                  </div>
-                                 <img src="src/img/uploads/${msg[3] ? msg[3] : 'ava2-bg.webp'}" alt="avatar 1" style="width: 45px; height: 100%;">
+                                 <img src="src/img/uploads/${typeof msg[3] == 'object' ? 'ava1-bg.webp' : msg[3]}" alt="avatar 1" style="width: 45px; height: 100%;">
                               </div>
                      `
                   }
@@ -414,12 +414,12 @@
                               <p class="small p-2 me-3 mb-1 text-white rounded-3 bg-primary">${data.message}</p>
                               <p class="small me-3 mb-3 rounded-3 text-muted"> me | ${data.date}</p>
                            </div>
-                           <img class='my-profile' src="src/img/uploads/${data.images ? data.images : 'ava1-bg.webp'}" alt="avatar 1" style="width: 45px; height: 100%;">
+                           <img class='my-profile' src="src/img/uploads/${typeof data.images === 'object' ? 'ava1-bg.webp' : data.images}" alt="avatar 1" style="width: 45px; height: 100%;">
                         </div>`;
                containerChatBox.insertAdjacentHTML('beforeend', markup);
             } else if (currentOpenedChatRoom == data.room_id) {
                markup = `<div class="d-flex flex-row justify-content-start">
-                           <img class='friend-profile' src="src/img/uploads/${data.images ? data.images : 'ava2-bg.webp'}" alt="avatar 1" style="width: 45px; height: 100%;">
+                           <img class='friend-profile' src="src/img/uploads/${typeof data.images === 'object' ? 'ava1-bg.webp' : data.images }" alt="avatar 1" style="width: 45px; height: 100%;">
                            <div>
                               <p class="small p-2 ms-3 mb-1 rounded-3" style="background-color: #f5f6f7;">${data.message}</p>
                               <p class="small ms-3 mb-3 rounded-3 text-muted float-end">${data.relation} | ${data.date}</p>

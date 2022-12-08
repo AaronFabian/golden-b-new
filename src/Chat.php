@@ -24,6 +24,7 @@ class Chat implements MessageComponentInterface
    protected $clients;
    private $adminDaoImpl;
    private $chatRoomDaoImpl;
+   private $connectArr = [];
 
    public function __construct()
    {
@@ -84,6 +85,8 @@ class Chat implements MessageComponentInterface
             }
             break;
          case 'chat-view':
+            $this->connectArr[$from->resourceId] = $from;
+
             $newAdmin = new Admin();
             $newAdmin->setAdminToken(isset($queryArr['token']) ? $queryArr['token'] : 'none');
             $newAdmin->setAdminConnectionId($from->resourceId);
@@ -160,6 +163,7 @@ class Chat implements MessageComponentInterface
                   'room_id' => $isRoomAvailble->getRoomId()
                ]));
             }
+            echo $userData['username'] . " is requesting discover friend completed" . "\n";
             break;
          case 'chat-detail-request':
             echo $userData['username'] . " is requesting data..." . "\n";
@@ -212,31 +216,35 @@ class Chat implements MessageComponentInterface
                $insertingNewChatStatus = $this->chatRoomDaoImpl->insertNewMessage($newChatRoom);
             }
             $getLatestMessageInfo = $this->chatRoomDaoImpl->fetchLatestMessageInfo($newChatRoom);
+            $getRelationWith = $this->adminDaoImpl->fetchLiveContact($newChatRoom->getForGuestNik());
 
-            foreach ($this->clients as $client) {
-               if ($from == $client) {
-                  $from->send(json_encode([
-                     'status' => $insertingNewChatStatus,
-                     'messageFor' => 'me', // $newChatRoom->getForGuestNik()
-                     'message' => $newChatRoom->getMessage(),
-                     'room_id' => $newChatRoom->getRoomId(),
-                     'relation' => $getLatestMessageInfo->getNameForDisplay(),
-                     'date' => $getLatestMessageInfo->getRoomCreatedDate(),
-                     'images' => $getLatestMessageInfo->getImagesForDisplay(),
-                     'type' => 'parsing-new-chat'
-                  ]));
-               } else {
-                  $client->send(json_encode([
-                     'status' => 'new message',
-                     'messageFor' => $newChatRoom->getForGuestNik(),
-                     'message' => $newChatRoom->getMessage(),
-                     'room_id' => $newChatRoom->getRoomId(),
-                     'relation' => $getLatestMessageInfo->getNameForDisplay(),
-                     'date' => $getLatestMessageInfo->getRoomCreatedDate(),
-                     'images' => $getLatestMessageInfo->getImagesForDisplay(),
-                     'type' => 'parsing-new-chat'
-                  ]));
-               }
+            $from->send(json_encode([
+               'status' => $insertingNewChatStatus,
+               'messageFor' => 'me', // $newChatRoom->getForGuestNik()
+               'message' => $newChatRoom->getMessage(),
+               'room_id' => $newChatRoom->getRoomId(),
+               'relation' => $getLatestMessageInfo->getNameForDisplay(),
+               'date' => $getLatestMessageInfo->getRoomCreatedDate(),
+               'images' => $getLatestMessageInfo->getImagesForDisplay(),
+               'type' => 'parsing-new-chat'
+            ]));
+            if (isset($this->connectArr[$getRelationWith->getAdminConnectionId()])) {
+               $connection = $this->connectArr[$getRelationWith->getAdminConnectionId()];
+               $connection->send(
+                  json_encode(
+                     [
+                        'status' => 'new message',
+                        'messageFor' => $newChatRoom->getForGuestNik(),
+                        'message' => $newChatRoom->getMessage(),
+                        'room_id' => $newChatRoom->getRoomId(),
+                        'relation' => $getLatestMessageInfo->getNameForDisplay(),
+                        'date' => $getLatestMessageInfo->getRoomCreatedDate(),
+                        'images' => $getLatestMessageInfo->getImagesForDisplay(),
+                        'admin_connection_id' => $getLatestMessageInfo->getAdmin()->getAdminConnectionId(),
+                        'type' => 'parsing-new-chat'
+                     ]
+                  )
+               );
             }
             echo "sending new message completed" . "\n";
             break;
@@ -284,6 +292,9 @@ class Chat implements MessageComponentInterface
       // The connection is closed, remove it, as we can no longer send it messages
       $this->clients->detach($conn);
       $numRecv = count($this->clients);
+
+      if (isset($this->connectArr[$conn->resourceId]))
+         unset($this->connectArr[$conn->resourceId]);
 
       foreach ($this->clients as $client)
          $client->send(json_encode(['onlineAdmin' => $numRecv, 'type' => 'close']));

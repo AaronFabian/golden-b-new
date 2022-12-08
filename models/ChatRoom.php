@@ -120,9 +120,16 @@ class ChatRoom
          $this->admin = new Admin();
       }
 
+      if (!isset($this->admin_connection_id)) {
+         $this->admin = new Admin();
+      }
+
       switch ($name) {
          case 'my_total_message':
             $this->setMyTotalMessage($value);
+            break;
+         case 'admin_connection_id':
+            $this->admin->setAdminConnectionId($value);
             break;
       }
    }
